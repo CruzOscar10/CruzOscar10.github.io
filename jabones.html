@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jabones - LumiHerb</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-top">
+                <div class="logo-container">
+                    <img src="Logo.jpeg" alt="LumiHerb" class="logo-img">
+                    <div class="company-name">LumiHerb</div>
+                </div>
+                <a href="index.html" class="back-btn">← Volver al Inicio</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>Nuestra Línea de Jabones</h1>
+            <p>Descubre nuestros 5 jabones naturales elaborados con ingredientes de la más alta calidad para el cuidado de tu piel</p>
+        </div>
+    </section>
+
+    <!-- Productos de Jabones -->
+    <section class="container">
+        <h2 class="section-title">Todos Nuestros Jabones</h2>
+        <div class="products-grid">
+            <!-- Jabón 1 -->
+            <div class="product-card" data-product="Jabón HeibHeb" data-price="8.99">
+                <div class="product-img" style="background-image: url('https://tse4.mm.bing.net/th/id/OIP.nIeNOECl9qzFvLsRR-jjZQHaE7?cb=12&rs=1&pid=ImgDetMain&o=7&rm=3');"></div>
+                <div class="product-info">
+                    <h3>Jabón HeibHeb</h3>
+                    <p>Jabón hidratante con extractos de hierbas naturales. Ideal para pieles sensibles.</p>
+                    <div class="price">$8.99</div>
+                    <button class="add-to-cart-btn">Agregar al carrito</button>
+                </div>
+            </div>
+            
+            <!-- Jabón 2 -->
+            <div class="product-card" data-product="Jabón Junior" data-price="7.50">
+                <div class="product-img" style="background-image: url('https://images.unsplash.com/photo-1594736797933-d0ea3ff8db41?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');"></div>
+                <div class="product-info">
+                    <h3>Jabón Junior</h3>
+                    <p>Jabón suave especialmente formulado para la piel delicada de los más pequeños.</p>
+                    <div class="price">$7.50</div>
+                    <button class="add-to-cart-btn">Agregar al carrito</button>
+                </div>
+            </div>
+            
+            <!-- Jabón 3 -->
+            <div class="product-card" data-product="Jabón Glanur" data-price="9.99">
+                <div class="product-img" style="background-image: url('https://images.unsplash.com/photo-1596040033229-a9821ebd058d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');"></div>
+                <div class="product-info">
+                    <h3>Jabón Glanur</h3>
+                    <p>Jabón exfoliante con partículas naturales que renuevan y revitalizan la piel.</p>
+                    <div class="price">$9.99</div>
+                    <button class="add-to-cart-btn">Agregar al carrito</button>
+                </div>
+            </div>
+            
+            <!-- Jabón 4 -->
+            <div class="product-card" data-product="Jabón Premium H" data-price="11.99">
+                <div class="product-img" style="background-image: url('https://images.unsplash.com/photo-1549989476-69a92fa57c36?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');"></div>
+                <div class="product-info">
+                    <h3>Jabón Premium H</h3>
+                    <p>Jabón premium con aceites esenciales para una experiencia de lujo en el cuidado.</p>
+                    <div class="price">$11.99</div>
+                    <button class="add-to-cart-btn">Agregar al carrito</button>
+                </div>
+            </div>
+
+            <!-- Jabón 5 -->
+            <div class="product-card" data-product="Jabón Lavanda" data-price="10.50">
+                <div class="product-img" style="background-image: url('https://images.unsplash.com/photo-1556228578-8c89e6adf883?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');"></div>
+                <div class="product-info">
+                    <h3>Jabón Lavanda</h3>
+                    <p>Jabón relajante con esencia de lavanda, perfecto para usar antes de dormir.</p>
+                    <div class="price">$10.50</div>
+                    <button class="add-to-cart-btn">Agregar al carrito</button>
+                </div>
+            </div>
+            </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 LumiHerb. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Modal para seleccionar cantidad -->
+    <div class="modal" id="quantityModal">
+        <div class="modal-content">
+            <h3 id="modalProductName">Producto</h3>
+            <div class="quantity-selector">
+                <button class="quantity-btn" id="decreaseQuantity">-</button>
+                <input type="text" class="quantity-input" id="productQuantity" value="1" readonly>
+                <button class="quantity-btn" id="increaseQuantity">+</button>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn cancel-btn" id="cancelAdd">Cancelar</button>
+                <button class="modal-btn confirm-btn" id="confirmAdd">Agregar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botón flotante del carrito -->
+    <div class="cart-toggle">
+        🛒
+        <div class="cart-count">0</div>
+    </div>
+
+    <!-- Carrito de compras -->
+    <div class="cart-container">
+        <div class="cart-header">
+            <h3>Tu Carrito</h3>
+            <span class="close-cart">✕</span>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <!-- Los productos del carrito se agregarán aquí dinámicamente -->
+        </div>
+        <div class="cart-total">
+            Total: $<span id="cartTotal">0.00</span>
+        </div>
+        <div class="cart-actions">
+            <button class="cart-btn clear-cart" id="clearCart">Vaciar Carrito</button>
+            <button class="cart-btn checkout-btn" id="checkout">Finalizar Compra</button>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
