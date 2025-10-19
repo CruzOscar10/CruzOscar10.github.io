@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finalizar Compra - LumiHerb</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <style>
+        .checkout-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 80px;
+        }
+
+        .order-summary, .payment-methods-checkout, .address-form {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .payment-type-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .payment-type {
+            padding: 20px;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .payment-type:hover {
+            border-color: #5d8a82;
+        }
+
+        .payment-type.selected {
+            border-color: #5d8a82;
+            background-color: #f0f7f5;
+        }
+
+        .payment-type-icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .payment-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .payment-option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .payment-option:hover {
+            border-color: #5d8a82;
+        }
+
+        .payment-option.selected {
+            border-color: #5d8a82;
+            background-color: #f0f7f5;
+        }
+
+        .payment-option img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+            object-fit: contain;
+            background: #f5f5f5;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        .payment-form {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            background: #f9f9f9;
+            display: none;
+        }
+
+        .payment-form.active {
+            display: block;
+        }
+
+        .payment-form input, .payment-form select, .address-form input, .address-form select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .bank-details {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .bank-detail-item {
+            display: flex;
+            justify-content: between;
+            margin: 8px 0;
+            padding: 5px 0;
+        }
+
+        .bank-detail-label {
+            font-weight: bold;
+            min-width: 120px;
+            color: #333;
+        }
+
+        .bank-detail-value {
+            flex: 1;
+            font-family: monospace;
+            background: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .barcode-container {
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .barcode {
+            margin: 15px 0;
+        }
+
+        .reference-number {
+            font-size: 18px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            color: #333;
+            margin: 15px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .confirm-payment-btn {
+            width: 100%;
+            background-color: #5d8a82;
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        .confirm-payment-btn:hover {
+            background-color: #4a716a;
+        }
+
+        .confirm-payment-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .delivery-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0f7f5;
+            border-radius: 8px;
+        }
+
+        .checkout-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .checkout-item:last-child {
+            border-bottom: none;
+        }
+
+        .checkout-item-info {
+            flex-grow: 1;
+        }
+
+        .checkout-item-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .checkout-item-details {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .shipping-cost {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .free-shipping {
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .section-title-checkout {
+            color: #5d8a82;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .payment-instructions {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border-left: 4px solid #ffc107;
+        }
+
+        @media (max-width: 768px) {
+            .checkout-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .payment-type-selector {
+                grid-template-columns: 1fr;
+            }
+            
+            .payment-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-top">
+               <div class="logo-container">
+                    <img src="Logo.jpeg" alt="LumiHerb" class="logo-img">
+                    <div class="company-name">LumiHerb</div>
+                </div>
+                <a href="index.html" class="back-btn">← Volver a la Tienda</a>
+            </div>
+        </div>
+    </header>
+
+    <section class="container">
+        <h2 class="section-title">Finalizar Compra</h2>
+        
+        <div class="checkout-container">
+            <div class="order-summary">
+                <h3>🛒 Resumen de tu Pedido</h3>
+                <div id="checkoutItems">
+                    <!-- Productos del carrito se cargan aquí -->
+                </div>
+                <div id="shippingInfo">
+                    <!-- Información de envío se carga aquí -->
+                </div>
+                <div class="order-total" style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #5d8a82;">
+                    <strong style="font-size: 18px;">Total: $<span id="checkoutTotal">0.00</span></strong>
+                </div>
+                <div class="delivery-info">
+                    <h4>🚚 Información de Entrega</h4>
+                    <p><strong>Fecha estimada de entrega:</strong> <span id="deliveryDate"></span></p>
+                    <p>• Entrega al día siguiente para pedidos antes de las 3 PM</p>
+                    <p>• <span class="free-shipping">Envío gratuito</span> en compras mayores a $200</p>
+                    <p>• <span class="shipping-cost">Envío: $50 MXN</span> en compras menores a $200</p>
+                    <p>• Zona de cobertura: Toda la República Mexicana</p>
+                </div>
+            </div>
+
+            <div class="address-form">
+                <h3 class="section-title-checkout">🏠 Dirección de Envío</h3>
+                <form id="shippingAddressForm">
+                    <input type="text" placeholder="Nombre completo *" required id="fullName">
+                    <input type="tel" placeholder="Teléfono *" required id="phone">
+                    <input type="email" placeholder="Correo electrónico *" required id="email">
+                    
+                    <div class="form-row">
+                        <input type="text" placeholder="Calle *" required id="street">
+                        <input type="text" placeholder="Número exterior *" required id="extNumber">
+                    </div>
+                    
+                    <input type="text" placeholder="Número interior (opcional)" id="intNumber">
+                    
+                    <div class="form-row">
+                        <input type="text" placeholder="Colonia *" required id="neighborhood">
+                        <input type="text" placeholder="Código Postal *" required id="postalCode">
+                    </div>
+                    
+                    <div class="form-row">
+                        <input type="text" placeholder="Ciudad *" required id="city">
+                        <input type="text" placeholder="Estado *" required id="state">
+                    </div>
+                    
+                    <input type="text" placeholder="Referencias (opcional)" id="references">
+                    <textarea 
+    placeholder="Instrucciones especiales para el repartidor (opcional)" 
+    rows="3" 
+    id="specialInstructions"
+    style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; font-family: inherit; resize: vertical;"
+></textarea>
+                    <button type="button" id="saveAddressBtn" class="confirm-payment-btn" style="margin-top: 15px;">
+                        Guardar Dirección y Continuar al Pago
+                    </button>
+                </form>
+            </div>
+
+            <div class="payment-methods-checkout" id="paymentSection" style="display: none;">
+                <h3 class="section-title-checkout">💳 Método de Pago</h3>
+                
+                <!-- Selector de tipo de pago -->
+                <div class="payment-type-selector">
+                    <div class="payment-type" data-type="card">
+                        <div class="payment-type-icon">💳</div>
+                        <div>
+                            <strong>Tarjeta de Crédito/Débito</strong>
+                            <p style="font-size: 12px; margin: 5px 0 0 0; color: #666;">Pago seguro en línea</p>
+                        </div>
+                    </div>
+                    <div class="payment-type" data-type="transfer">
+                        <div class="payment-type-icon">🏦</div>
+                        <div>
+                            <strong>Transferencia Bancaria</strong>
+                            <p style="font-size: 12px; margin: 5px 0 0 0; color: #666;">Pago directo a tu banco</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Opciones de pago con tarjeta -->
+                <div id="cardOptions" style="display: none;">
+                    <h4>Selecciona tu banco:</h4>
+                    <div class="payment-options">
+                        <div class="payment-option" data-method="bbva-card">
+                            <div style="width: 40px; height: 40px; background: #072146; color: white; display: flex; align-items: center; justify-content: center; border-radius: 5px; margin-right: 10px; font-weight: bold;">BB</div>
+                            <span>BBVA</span>
+                        </div>
+                        <div class="payment-option" data-method="banorte-card">
+                            <div style="width: 40px; height: 40px; background: #0f265c; color: white; display: flex; align-items: center; justify-content: center; border-radius: 5px; margin-right: 10px; font-weight: bold;">BN</div>
+                            <span>Banorte</span>
+                        </div>
+                        <div class="payment-option" data-method="azteca-card">
+                            <div style="width: 40px; height: 40px; background: #e5252a; color: white; display: flex; align-items: center; justify-content: center; border-radius: 5px; margin-right: 10px; font-weight: bold;">BA</div>
+                            <span>Banco Azteca</span>
+                        </div>
+                        <div class="payment-option" data-method="paypal">
+                            <div style="width: 40px; height: 40px; background: #0070ba; color: white; display: flex; align-items: center; justify-content: center; border-radius: 5px; margin-right: 10px; font-weight: bold;">P</div>
+                            <span>PayPal</span>
+                        </div>
+                        <div class="payment-option" data-method="mercadopago">
+                            <div style="width: 40px; height: 40px; background: #00b1ea; color: white; display: flex; align-items: center; justify-content: center; border-radius: 5px; margin-right: 10px; font-weight: bold;">MP</div>
+                            <span>Mercado Pago</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Opciones de transferencia -->
+                <div id="transferOptions" style="display: none;">
+                    <h4>Selecciona tu banco para transferencia:</h4>
+                    <div class="payment-options">
+                        <div class="payment-option" data-method="bbva-transfer">
+                            <div style="width: 40px; height: 40px; background: #072146; color: white; display: flex; align-items: center; justify-content: center; border-radius: 5px; margin-right: 10px; font-weight: bold;">BB</div>
+                            <span>BBVA</span>
+                        </div>
+                        <div class="payment-option" data-method="banorte-transfer">
+                            <div style="width: 40px; height: 40px; background: #0f265c; color: white; display: flex; align-items: center; justify-content: center; border-radius: 5px; margin-right: 10px; font-weight: bold;">BN</div>
+                            <span>Banorte</span>
+                        </div>
+                        <div class="payment-option" data-method="azteca-transfer">
+                            <div style="width: 40px; height: 40px; background: #e5252a; color: white; display: flex; align-items: center; justify-content: center; border-radius: 5px; margin-right: 10px; font-weight: bold;">BA</div>
+                            <span>Banco Azteca</span>
+                        </div>
+                        <div class="payment-option" data-method="oxxo">
+                            <div style="width: 40px; height: 40px; background: #c82026; color: white; display: flex; align-items: center; justify-content: center; border-radius: 5px; margin-right: 10px; font-weight: bold;">OX</div>
+                            <span>OXXO</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="payment-form" id="paymentForm">
+                    <!-- Formulario de pago dinámico -->
+                </div>
+
+                <button class="confirm-payment-btn" id="confirmPayment" disabled>Confirmar Pago</button>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 LumiHerb. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script>
+        let shippingCost = 50;
+        let subtotal = 0;
+        let total = 0;
+        let userAddress = null;
+        let currentPaymentType = null;
+
+        // Cargar carrito y mostrar resumen
+        function loadCheckout() {
+            const savedCart = localStorage.getItem('lumiherbCart');
+            const checkoutItems = document.getElementById('checkoutItems');
+            const checkoutTotal = document.getElementById('checkoutTotal');
+            const deliveryDate = document.getElementById('deliveryDate');
+            const shippingInfo = document.getElementById('shippingInfo');
+            
+            if (savedCart && JSON.parse(savedCart).length > 0) {
+                const cart = JSON.parse(savedCart);
+                subtotal = 0;
+                
+                checkoutItems.innerHTML = '';
+                
+                cart.forEach(item => {
+                    const itemTotal = item.price * item.quantity;
+                    subtotal += itemTotal;
+                    
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'checkout-item';
+                    itemElement.innerHTML = `
+                        <div class="checkout-item-info">
+                            <div class="checkout-item-name">${item.name}</div>
+                            <div class="checkout-item-details">Cantidad: ${item.quantity} x $${item.price.toFixed(2)}</div>
+                        </div>
+                        <div style="font-weight: bold; color: #5d8a82;">$${itemTotal.toFixed(2)}</div>
+                    `;
+                    checkoutItems.appendChild(itemElement);
+                });
+
+                // Calcular envío
+                if (subtotal >= 200) {
+                    shippingCost = 0;
+                    shippingInfo.innerHTML = `
+                        <div class="checkout-item">
+                            <div class="checkout-item-info">
+                                <div class="checkout-item-name">Envío</div>
+                            </div>
+                            <div class="free-shipping">GRATIS</div>
+                        </div>
+                        <div class="checkout-item">
+                            <div class="checkout-item-info">
+                                <div class="checkout-item-name">Subtotal</div>
+                            </div>
+                            <div>$${subtotal.toFixed(2)}</div>
+                        </div>
+                    `;
+                } else {
+                    shippingCost = 50;
+                    shippingInfo.innerHTML = `
+                        <div class="checkout-item">
+                            <div class="checkout-item-info">
+                                <div class="checkout-item-name">Subtotal</div>
+                            </div>
+                            <div>$${subtotal.toFixed(2)}</div>
+                        </div>
+                        <div class="checkout-item">
+                            <div class="checkout-item-info">
+                                <div class="checkout-item-name">Envío</div>
+                            </div>
+                            <div class="shipping-cost">$${shippingCost.toFixed(2)}</div>
+                        </div>
+                    `;
+                }
+
+                total = subtotal + shippingCost;
+                checkoutTotal.textContent = total.toFixed(2);
+                
+                // Calcular fecha de entrega
+                const today = new Date();
+                const delivery = new Date(today);
+                delivery.setDate(today.getDate() + 2);
+                deliveryDate.textContent = delivery.toLocaleDateString('es-ES', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+                
+            } else {
+                checkoutItems.innerHTML = '<p>No hay productos en el carrito</p>';
+                checkoutTotal.textContent = '0.00';
+            }
+        }
+        // Guardar dirección y mostrar sección de pago
+document.getElementById('saveAddressBtn').addEventListener('click', function() {
+    const form = document.getElementById('shippingAddressForm');
+    const inputs = form.querySelectorAll('input[required]');
+    let isValid = true;
+
+    // Validar campos requeridos
+    inputs.forEach(input => {
+        if (!input.value.trim()) {
+            isValid = false;
+            input.style.borderColor = '#e74c3c';
+        } else {
+            input.style.borderColor = '#ddd';
+        }
+    });
+
+    if (!isValid) {
+        alert('Por favor completa todos los campos obligatorios (*)');
+        return;
+    }
+
+    // Guardar datos de dirección
+    userAddress = {
+        fullName: document.getElementById('fullName').value,
+        phone: document.getElementById('phone').value,
+        email: document.getElementById('email').value,
+        street: document.getElementById('street').value,
+        extNumber: document.getElementById('extNumber').value,
+        intNumber: document.getElementById('intNumber').value,
+        neighborhood: document.getElementById('neighborhood').value,
+        postalCode: document.getElementById('postalCode').value,
+        city: document.getElementById('city').value,
+        state: document.getElementById('state').value,
+        references: document.getElementById('references').value,
+        specialInstructions: document.getElementById('specialInstructions').value
+    };
+
+    // Mostrar sección de pago y ocultar formulario de dirección
+    document.getElementById('paymentSection').style.display = 'block';
+    document.querySelector('.address-form').style.display = 'none';
+    
+    alert('✅ Dirección guardada correctamente');
+});
+
+// Selector de tipo de pago
+document.querySelectorAll('.payment-type').forEach(type => {
+    type.addEventListener('click', function() {
+        document.querySelectorAll('.payment-type').forEach(t => {
+            t.classList.remove('selected');
+        });
+        this.classList.add('selected');
+        
+        currentPaymentType = this.dataset.type;
+        
+        // Mostrar opciones según el tipo seleccionado
+        if (currentPaymentType === 'card') {
+            document.getElementById('cardOptions').style.display = 'block';
+            document.getElementById('transferOptions').style.display = 'none';
+        } else {
+            document.getElementById('cardOptions').style.display = 'none';
+            document.getElementById('transferOptions').style.display = 'block';
+        }
+        
+        // Limpiar formulario anterior
+        document.getElementById('paymentForm').innerHTML = '';
+        document.getElementById('paymentForm').classList.remove('active');
+        document.getElementById('confirmPayment').disabled = true;
+    });
+});
+
+// Funcionalidad de métodos de pago
+document.querySelectorAll('.payment-option').forEach(option => {
+    option.addEventListener('click', function() {
+        // Remover selección anterior
+        document.querySelectorAll('.payment-option').forEach(opt => {
+            opt.classList.remove('selected');
+        });
+        
+        // Agregar selección actual
+        this.classList.add('selected');
+        
+        const method = this.dataset.method;
+        showPaymentForm(method);
+        
+        // Habilitar botón de confirmar
+        document.getElementById('confirmPayment').disabled = false;
+    });
+});
+
+function showPaymentForm(method) {
+    const form = document.getElementById('paymentForm');
+    form.innerHTML = '';
+    form.classList.add('active');
+    
+    // Generar referencia única para OXXO
+    const oxxoReference = generateOxxoReference();
+    
+    switch(method) {
+        case 'bbva-card':
+        case 'banorte-card':
+        case 'azteca-card':
+            form.innerHTML = `
+                <h4>💳 Pago con Tarjeta</h4>
+                <input type="text" placeholder="Número de tarjeta" maxlength="16">
+                <div class="form-row">
+                    <input type="text" placeholder="MM/AA" maxlength="5">
+                    <input type="text" placeholder="CVV" maxlength="3">
+                </div>
+                <input type="text" placeholder="Nombre como aparece en la tarjeta">
+                <div class="payment-instructions">
+                    <p><strong>🔒 Pago 100% seguro</strong></p>
+                    <p style="margin: 5px 0 0 0; font-size: 14px;">Tus datos están protegidos con encriptación SSL</p>
+                </div>
+            `;
+            break;
+            
+        case 'paypal':
+            form.innerHTML = `
+                <h4>🔵 Pago con PayPal</h4>
+                <p style="margin-bottom: 15px; color: #666;">Serás redirigido a PayPal para completar tu pago de forma segura</p>
+                <button type="button" style="display: block; width: 100%; padding: 12px; background: #0070ba; color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px;">
+                    Continuar con PayPal
+                </button>
+            `;
+            break;
+            
+        case 'mercadopago':
+            form.innerHTML = `
+                <h4>🔵 Pago con Mercado Pago</h4>
+                <p style="margin-bottom: 15px; color: #666;">Paga con tu cuenta de Mercado Pago de forma rápida y segura</p>
+                <button type="button" style="display: block; width: 100%; padding: 12px; background: #00b1ea; color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px;">
+                    Pagar con Mercado Pago
+                </button>
+            `;
+            break;
+
+        case 'bbva-transfer':
+            form.innerHTML = `
+                <h4>🏦 Transferencia BBVA</h4>
+                <div class="bank-details">
+                    <div class="bank-detail-item">
+                        <span class="bank-detail-label">Banco:</span>
+                        <span class="bank-detail-value">BBVA Bancomer</span>
+                    </div>
+                    <div class="bank-detail-item">
+                        <span class="bank-detail-label">CLABE:</span>
+                        <span class="bank-detail-value">0121 8000 1234 5678 90</span>
+                    </div>
+                    <div class="bank-detail-item">
+                        <span class="bank-detail-label">Cuenta:</span>
+                        <span class="bank-detail-value">1234 5678 9012 3456</span>
+                    </div>
+                    <div class="bank-detail-item">
+                        <span class="bank-detail-label">Beneficiario:</span>
+                        <span class="bank-detail-value">LumiHerb SA de CV</span>
+                    </div>
+                    <div class="bank-detail-item">
+                        <span class="bank-detail-label">RFC:</span>
+                        <span class="bank-detail-value">LHE210524ABC</span>
+                    </div>
+                    <div class="bank-detail-item">
+                        <span class="bank-detail-label">Monto a transferir:</span>
+                        <span class="bank-detail-value">$${total.toFixed(2)} MXN</span>
+                    </div>
+                </div>
+                <div class="payment-instructions">
+                    <p><strong>📝 Instrucciones:</strong></p>
+                    <p style="margin: 5px 0 0 0; font-size: 14px;">
+                        1. Realiza la transferencia por el monto exacto<br>
+                        2. Envía tu comprobante a: comprobantes@lumiherb.com<br>
+                        3. Incluye tu número de pedido en el asunto
+                    </p>
+                </div>
+            `;
+            break;
+            
+        case 'banorte-transfer':
+            form.innerHTML = `
+                <h4>🏦 Transferencia Banorte</h4>
+                <div class="bank-details">
+                    <div class="bank-detail-item">
+                        <span class="bank-detail-label">Banco:</span>
+                        <span class="bank-detail-value">Banorte</span>
+                    </div>
+                    <div class="bank-detail-item">
+                        <span class="bank-detail-label">CLABE:</span>
+                        <span class="bank-detail-value">0721 8000 1234 5678 90</span>
+                    </div>
+                    <div class="bank-detail-item">
+                        <span class="bank-detail-label">Cuenta:</span>
+                        <span class="bank-detail-value">9876 5432 1098 7654</span>
+                    </div>
+                    <div class="bank-detail-item">
+                        <span class="bank-detail-label">Beneficiario:</span>
+                        <span class="bank-detail-value">LumiHerb SA de CV</span>
+                    </div>
+                    <div class="bank-detail-item">
+                        <span class="bank-detail-label">RFC:</span>
+                        <span class="bank-detail-value">LHE210524ABC</span>
+                    </div>
+                    <div class="bank-detail-item">
+                        <span class="bank-detail-label">Monto a transferir:</span>
+                        <span class="bank-detail-value">$${total.toFixed(2)} MXN</span>
+                    </div>
+                </div>
+                <div class="payment-instructions">
+                    <p><strong>📝 Instrucciones:</strong></p>
+                    <p style="margin: 5px 0 0 0; font-size: 14px;">
+                        1. Realiza la transferencia por el monto exacto<br>
+                        2. Envía tu comprobante a: comprobantes@lumiherb.com<br>
+                        3. Incluye tu número de pedido en el asunto
+                    </p>
+                </div>
+            `;
+            break;
+            
+        case 'azteca-transfer':
+            form.innerHTML = `
+                <h4>🏦 Transferencia Banco Azteca</h4>
+                <div class="bank-details">
+                    <div class="bank-detail-item">
+                        <span class="bank-detail-label">Banco:</span>
+                        <span class="bank-detail-value">Banco Azteca</span>
+                    </div>
+                    <div class="bank-detail-item">
+                        <span class="bank-detail-label">CLABE:</span>
+                        <span class="bank-detail-value">1271 8000 1234 5678 90</span>
+                    </div>
+                    <div class="bank-detail-item">
+                        <span class="bank-detail-label">Cuenta:</span>
+                        <span class="bank-detail-value">5678 9012 3456 7890</span>
+                    </div>
+                    <div class="bank-detail-item">
+                        <span class="bank-detail-label">Beneficiario:</span>
+                        <span class="bank-detail-value">LumiHerb SA de CV</span>
+                    </div>
+                    <div class="bank-detail-item">
+                        <span class="bank-detail-label">RFC:</span>
+                        <span class="bank-detail-value">LHE210524ABC</span>
+                    </div>
+                    <div class="bank-detail-item">
+                        <span class="bank-detail-label">Monto a transferir:</span>
+                        <span class="bank-detail-value">$${total.toFixed(2)} MXN</span>
+                    </div>
+                </div>
+                <div class="payment-instructions">
+                    <p><strong>📝 Instrucciones:</strong></p>
+                    <p style="margin: 5px 0 0 0; font-size: 14px;">
+                        1. Realiza la transferencia por el monto exacto<br>
+                        2. Envía tu comprobante a: comprobantes@lumiherb.com<br>
+                        3. Incluye tu número de pedido en el asunto
+                    </p>
+                </div>
+            `;
+            break;
+            
+        case 'oxxo':
+            form.innerHTML = `
+                <h4>🏪 Pago en OXXO</h4>
+                <div class="barcode-container">
+                    <p style="margin-bottom: 15px; color: #666;">Escanea o muestra este código en caja OXXO</p>
+                    
+                    <div class="reference-number">
+                        ${oxxoReference.match(/.{1,4}/g).join(' ')}
+                    </div>
+                    
+                    <svg class="barcode" id="barcode"></svg>
+                    
+                    <p style="margin: 15px 0 5px 0; font-weight: bold;">Monto a pagar:</p>
+                    <p style="font-size: 20px; font-weight: bold; color: #c82026;">$${(total + 10).toFixed(2)} MXN</p>
+                    <p style="font-size: 12px; color: #666;">(Incluye comisión de $10 MXN)</p>
+                </div>
+                
+                <div class="payment-instructions">
+                    <p><strong>📝 Instrucciones:</strong></p>
+                    <p style="margin: 5px 0 0 0; font-size: 14px;">
+                        1. Acude a cualquier tienda OXXO<br>
+                        2. Muestra el código de barras o número de referencia<br>
+                        3. Realiza tu pago en efectivo<br>
+                        4. Conserva tu ticket de pago
+                    </p>
+                </div>
+                
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-top: 15px;">
+                    <p style="margin: 0 0 5px 0; font-size: 14px;"><strong>Referencia:</strong> ${oxxoReference}</p>
+                    <p style="margin: 0 0 5px 0; font-size: 14px;"><strong>Vigencia:</strong> 72 horas</p>
+                    <p style="margin: 0; font-size: 14px;"><strong>Comisión OXXO:</strong> $10 MXN</p>
+                </div>
+            `;
+            
+            // Generar código de barras
+            setTimeout(() => {
+                JsBarcode("#barcode", oxxoReference, {
+                    format: "CODE128",
+                    width: 2,
+                    height: 80,
+                    displayValue: true,
+                    fontSize: 14,
+                    background: "#ffffff",
+                    lineColor: "#000000"
+                });
+            }, 100);
+            break;
+    }
+}
+
+function generateOxxoReference() {
+    const timestamp = Date.now().toString();
+    const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+    return (timestamp + random).slice(-16);
+}
+
+// Confirmar pago
+document.getElementById('confirmPayment').addEventListener('click', function() {
+    const selectedMethod = document.querySelector('.payment-option.selected');
+    
+    if (!selectedMethod) {
+        alert('Por favor selecciona un método de pago');
+        return;
+    }
+
+    if (!userAddress) {
+        alert('Por favor completa tu dirección primero');
+        return;
+    }
+    
+    // Generar ticket/resumen
+    generateReceipt(selectedMethod.dataset.method);
+    
+    // Simular procesamiento de pago
+    this.innerHTML = 'Procesando pago...';
+    this.disabled = true;
+    
+    setTimeout(() => {
+        alert('¡Pago realizado con éxito! 🎉\nTu pedido está en proceso y será enviado pronto.\n\nSe ha enviado un correo con los detalles de tu compra.');
+        localStorage.removeItem('lumiherbCart');
+        
+        // Redirigir a página de inicio
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 3000);
+        
+    }, 2000);
+});
+
+// Generar ticket/resumen
+function generateReceipt(paymentMethod) {
+    const savedCart = localStorage.getItem('lumiherbCart');
+    const cart = JSON.parse(savedCart);
+    
+    const receipt = {
+        orderNumber: 'LUMI-' + Date.now(),
+        date: new Date().toLocaleString('es-MX'),
+        customer: userAddress,
+        items: cart,
+        subtotal: subtotal,
+        shipping: shippingCost,
+        total: total,
+        paymentMethod: paymentMethod,
+        estimatedDelivery: document.getElementById('deliveryDate').textContent
+    };
+    
+    // Guardar ticket en localStorage (podría enviarse a un servidor)
+    localStorage.setItem('lastReceipt', JSON.stringify(receipt));
+    
+    console.log('Ticket generado:', receipt);
+}
+
+// Inicializar
+document.addEventListener('DOMContentLoaded', loadCheckout);
+</script>
+</body>
+</html>
